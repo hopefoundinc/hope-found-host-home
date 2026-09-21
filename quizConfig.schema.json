@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://apply.hopefoundinc.com/schemas/quizConfig.schema.json",
+  "title": "Hope Found Quiz Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["brand", "recipients", "followUpWindowHours", "questions", "contactFields", "consentText", "sourceParam"],
+  "properties": {
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primaryHex", "orgName"],
+      "properties": {
+        "primaryHex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "orgName": { "type": "string", "minLength": 1 }
+      }
+    },
+    "recipients": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recruitment", "cc", "adminBackup"],
+      "properties": {
+        "recruitment": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "format": "email" }
+        },
+        "cc": {
+          "type": "array",
+          "items": { "type": "string", "format": "email" }
+        },
+        "adminBackup": { "type": "string" }
+      }
+    },
+    "followUpWindowHours": { "type": "integer", "minimum": 1 },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/question" }
+    },
+    "contactFields": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "consentText": { "type": "string", "minLength": 1 },
+    "sourceParam": { "type": "string", "minLength": 1 }
+  },
+  "definitions": {
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "type", "rules"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9_]*$" },
+        "text": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "enum": ["yesno", "select", "textarea"] },
+        "options": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "minLength": { "type": "integer", "minimum": 0 },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule" }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "select" } } },
+          "then": { "required": ["options"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "textarea" } } },
+          "then": { "required": ["minLength"] }
+        }
+      ]
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["if", "outcome", "reason"],
+      "properties": {
+        "if": { "type": "string", "minLength": 1 },
+        "outcome": { "type": "string", "enum": ["DISQUALIFY", "HOLD"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

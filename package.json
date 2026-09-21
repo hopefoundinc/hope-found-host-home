@@ -1,0 +1,30 @@
+{
+  "name": "host-parent-recruitment-system",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "validate:config": "node scripts/validate-config.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "google-auth-library": "^11.1.0",
+    "pdfkit": "^0.20.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "oxlint": "^1.81.0",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

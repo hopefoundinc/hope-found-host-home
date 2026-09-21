@@ -1,0 +1,79 @@
+/*
+  Brand tokens for Hope Found, Inc.
+
+  primary-teal (#006D77) was read from computed styles on
+  https://www.hopefoundinc.com on 2026-09-21 (not a placeholder guess).
+  Source elements: h2, .primary-class links/buttons all resolved to
+  rgb(0, 109, 119). Secondary tones below were sampled from the same
+  page's background-color values and are provided for convenience;
+  only primary-teal is confirmed brand-critical.
+*/
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('../assets/fonts/public-sans-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('../assets/fonts/public-sans-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('../assets/fonts/public-sans-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('../assets/fonts/public-sans-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* brand color */
+  --color-primary: #006d77;
+  --color-primary-dark: #00494f;
+  --color-primary-light: #e0f2f1;
+
+  /* neutrals sampled from hopefoundinc.com */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f4f9f9;
+  --color-text: #0f2936;
+  --color-text-muted: #3f5a63;
+  --color-border: #cbdcdc;
+
+  /* status colors (internal use only, not shown to applicants) */
+  --color-error: #b3261e;
+  --color-error-bg: #fbeaea;
+
+  /* type */
+  --font-heading: Georgia, 'Times New Roman', serif;
+  --font-body: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* shape: flat, squared corners only */
+  --radius: 4px;
+
+  /* spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* touch targets */
+  --tap-min: 44px;
+}

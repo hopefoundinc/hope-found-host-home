@@ -1,0 +1,120 @@
+{
+  "brand": {
+    "primaryHex": "#006D77",
+    "orgName": "Hope Found, Inc."
+  },
+  "recipients": {
+    "recruitment": ["recruitment@hopefoundinc.com"],
+    "cc": ["zuleemamalya@gmail.com"],
+    "adminBackup": "PLACEHOLDER_ADMIN_EMAIL"
+  },
+  "followUpWindowHours": 48,
+  "questions": [
+    {
+      "id": "location",
+      "text": "You would live in the same home as the person you host, sharing daily life together. Where is that home located?",
+      "type": "select",
+      "options": ["Washington, DC", "Maryland", "Virginia", "Other"],
+      "rules": [
+        { "if": "Maryland", "outcome": "HOLD", "reason": "Home is in Maryland; Hope Found's Maryland provider application is pending" },
+        { "if": "Virginia", "outcome": "DISQUALIFY", "reason": "Home is in Virginia; host homes must be in DC" },
+        { "if": "Other", "outcome": "DISQUALIFY", "reason": "Home is outside the service area" }
+      ]
+    },
+    {
+      "id": "english",
+      "text": "Can you read, write, and speak English fluently? You will need to read care plans, write daily notes, and speak with the person's support team.",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "DISQUALIFY", "reason": "Not fluent in reading, writing, and speaking English" }
+      ]
+    },
+    {
+      "id": "age",
+      "text": "Are you 21 or older?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "DISQUALIFY", "reason": "Under 21" }
+      ]
+    },
+    {
+      "id": "room",
+      "text": "Do you have a private bedroom available for the person, with a door and a window?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "DISQUALIFY", "reason": "No private bedroom available" }
+      ]
+    },
+    {
+      "id": "room_ready",
+      "text": "When could the room be ready?",
+      "type": "select",
+      "options": ["Now", "Within 30 days", "Within 45 days", "More than 45 days"],
+      "rules": [
+        { "if": "More than 45 days", "outcome": "HOLD", "reason": "Room not ready for more than 45 days" }
+      ]
+    },
+    {
+      "id": "screening",
+      "text": "Are you willing to consent to a background check, fingerprinting, and a home study?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "DISQUALIFY", "reason": "Declined background screening" }
+      ]
+    },
+    {
+      "id": "income",
+      "text": "Do you have a stable source of income separate from this program?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "HOLD", "reason": "No independent income; needs review" }
+      ]
+    },
+    {
+      "id": "household",
+      "text": "Is every adult in your household willing to be screened?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "DISQUALIFY", "reason": "Household adult declined screening" }
+      ]
+    },
+    {
+      "id": "transport",
+      "text": "Do you have reliable transportation?",
+      "type": "yesno",
+      "rules": []
+    },
+    {
+      "id": "experience",
+      "text": "Do you have experience supporting someone with a disability? (Not required.)",
+      "type": "yesno",
+      "rules": []
+    },
+    {
+      "id": "adaptability",
+      "text": "Daily life with the person may include routines that take longer than expected, or communication that looks different from what you're used to. Are you willing to adjust your own pace and expectations to fit someone else's needs?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "HOLD", "reason": "May need additional readiness around adjusting to someone else's pace and communication style" }
+      ]
+    },
+    {
+      "id": "autonomy_respect",
+      "text": "The person you host has the same right as any adult to make their own choices about their day, even when you might choose differently for them. Are you comfortable supporting someone in making their own choices?",
+      "type": "yesno",
+      "rules": [
+        { "if": "No", "outcome": "HOLD", "reason": "May need additional readiness around respecting the person's independence and choices" }
+      ]
+    },
+    {
+      "id": "why",
+      "text": "In a few sentences, tell us why you want to open your home.",
+      "type": "textarea",
+      "minLength": 40,
+      "rules": []
+    }
+  ],
+  "contactFields": ["fullName", "phone", "email", "streetAddress", "city", "state", "zip", "bestTimeToCall"],
+  "consentText": "PLACEHOLDER: I agree to be contacted by Hope Found, Inc. by phone, text, or email about the host-home program.",
+  "sourceParam": "src"
+}
