@@ -26,6 +26,9 @@ samples/
 # Generated QR codes — regenerate anytime with `npm run qr -- <src-tag>`
 qr-codes/
 
+# Local handoff/letterhead documents — personal deliverables, not app source
+*.pdf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
