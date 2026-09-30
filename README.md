@@ -24,8 +24,9 @@ goes live:**
 4. **Hope Found Google account** for the Drive folder, Sheet, and service account (Phase 4).
    None of these exist yet — see "Who owns each account" below.
 5. **DNS access** for `apply.hopefoundinc.com` and the email sending subdomain (Phase 7).
-6. **Consent and privacy wording.** `quizConfig.json` → `consentText` is a placeholder and
-   needs legal review before launch.
+6. **Consent and privacy wording.** `quizConfig.json` → `consentText` reads reasonably but
+   hasn't had legal review — confirm it (and whether a separate privacy policy link is
+   needed) before launch.
 7. **Church ad run date**, which sets the real deadline for everything above.
 
 ## Who owns each account
@@ -69,6 +70,44 @@ Copy `.env.example` to `.env` and fill in values as later phases require them (G
 service account, Resend API key — see the file for what each one is for). Nothing in Phase 0
 requires any of these.
 
+## Deploy
+
+The live site is a Vercel project connected to this repo's GitHub, at
+`apply.hopefoundinc.com`. Once Hope Found's GitHub and Vercel accounts exist (see "Who owns
+each account" above — as of this writing, neither does):
+
+1. Push this repo to Hope Found's GitHub org.
+2. In Vercel, **Add New Project** → import that GitHub repo. Vercel auto-detects the Vite
+   framework (also pinned explicitly in [`vercel.json`](./vercel.json)) — there's nothing to
+   configure in the build settings.
+3. Under **Project Settings → Environment Variables**, add every variable from
+   [`.env.example`](./.env.example) for Production (and Preview too, if preview deployments
+   submitting real test data is useful).
+4. Deploy. Vercel gives you a `*.vercel.app` URL first — confirm the quiz loads and a full
+   test submission (`?src=test`) works end to end before moving to the custom domain.
+5. Under **Project Settings → Domains**, add `apply.hopefoundinc.com`.
+6. Add this DNS record at Hope Found's DNS provider for `hopefoundinc.com`:
+
+   | Type | Name | Value |
+   |---|---|---|
+   | CNAME | `apply` | `cname.vercel-dns.com` |
+
+   This is Vercel's standard subdomain CNAME target per their current docs — but the Domains
+   screen for this specific project will show you the exact value to use once you add the
+   domain there, and that's the one to trust if it ever differs. DNS changes can take
+   anywhere from a few minutes to a few hours to propagate.
+7. Do the same for the Resend sending subdomain (e.g. `mail.hopefoundinc.com`): Resend's
+   dashboard gives you its own required SPF and DKIM TXT records when you add the domain
+   there — add those the same way, at the same DNS provider.
+8. Once both are verified, submit one test per outcome (QUALIFIED / HOLD / DISQUALIFY)
+   against the real `apply.hopefoundinc.com` URL and confirm the PDF lands in the right Drive
+   folder, the row lands in the Sheet, and the right emails arrive. This is GATE 3 from the
+   build plan — do this before the church ads go live.
+
+`vercel.json` also sets `X-Content-Type-Options`, `X-Frame-Options`, and `Referrer-Policy` on
+every response, since this is a public form collecting names, addresses, and phone numbers.
+Vercel applies HTTPS and HSTS automatically on custom domains, so that's not configured here.
+
 ## Editing `quizConfig.json`
 
 All questions, disqualify/hold rules, recipient emails, and copy live in one file:
@@ -88,6 +127,15 @@ Rules:
   disqualified, even if other rules say `HOLD`. If nothing disqualifies but at least one rule
   triggers `HOLD`, the submission is held. Otherwise it's qualified. Every triggered rule's
   reason is recorded, not just the first one matched.
+- **`marylandDistanceCheck`:** a separate rule, outside the per-question `rules` above,
+  because it needs a network geocode call rather than a simple answer match. When the
+  question named by `triggerQuestionId` is answered `triggerValue` (Maryland home), the
+  applicant's contact address is geocoded via the free U.S. Census geocoder (no API key) and
+  compared against `officeLat`/`officeLng`. Beyond `maxMiles`, the submission is disqualified
+  on top of (not instead of) the existing Maryland "provider application pending" hold. If the
+  address can't be geocoded, the submission is held for manual review rather than guessed at
+  either way. To change the mile radius or office location, edit this block only — no code
+  changes needed.
 
 ## Adding a church source tag
 
@@ -100,9 +148,17 @@ the submission. Naming convention:
 ?src=va-[church-slug]
 ```
 
-Start with `?src=test` for testing. To add a new church, generate a QR code pointing at
-`https://apply.hopefoundinc.com/?src=dc-yourchurchslug` (any QR generator works — the site
-itself does not generate QR codes).
+Start with `?src=test` for testing. To add a new church, generate its link and QR code with:
+
+```bash
+npm run qr -- dc-gracechurch
+```
+
+This validates the tag against the naming convention above, then writes the full URL and a
+PNG QR code to `qr-codes/<tag>.png` (gitignored — these are regenerated on demand, not
+committed). Print the PNG onto the church flyer. `SITE_DOMAIN` defaults to
+`apply.hopefoundinc.com`; override it (e.g. for testing against a preview deployment) with
+`SITE_DOMAIN=my-preview.vercel.app npm run qr -- test`.
 
 ## Where records land
 
@@ -113,11 +169,15 @@ itself does not generate QR codes).
 - **Google Sheet:** one row appended to the sheet's first tab per submission, in this exact
   column order — set up a header row in the sheet matching it:
 
-  | A | B | C | D | E | F | G | H | I | J | K | L |
-  |---|---|---|---|---|---|---|---|---|---|---|---|
-  | ID | Timestamp | Name | Phone | Email | City | State | Outcome | Reasons | Source | Drive link | Follow-up status |
+  | A | B | C | D | E | F | G | H | I | J | K | L | M |
+  |---|---|---|---|---|---|---|---|---|---|---|---|---|
+  | ID | Timestamp | Name | Phone | Email | City | State | Outcome | Reasons | Source | Drive link | Follow-up status | Duplicate flag |
 
-  The follow-up status column is always written blank — the recruitment team fills it in.
+  The follow-up status column is always written blank — the recruitment team fills it in. The
+  duplicate flag column is written by the app: if the same email address appears elsewhere in
+  the sheet within the last 24 hours, this submission is flagged "Possible duplicate — same
+  email submitted within the last 24 hours" rather than rejected. It's still saved and still
+  gets its normal emails; the flag is just a heads-up for whoever reviews it.
 - **Email (via Resend):**
   - Every outcome: the applicant gets the same short confirmation email, sent from
     `RESEND_FROM_EMAIL`.
@@ -130,13 +190,40 @@ itself does not generate QR codes).
   - Each of these email sends is independent — one failing (or Resend being unreachable)
     doesn't stop the others from being tried, and every failure is logged.
 
+## Hardening
+
+`/api/submit` rejects a request before it does any real work if:
+
+- **Honeypot:** the hidden `organization` field on the contact screen is non-empty. It's
+  positioned off-screen and `aria-hidden`/`tabIndex={-1}`, so a real applicant — sighted,
+  keyboard, or screen-reader — never encounters it, let alone fills it in. Only a bot that
+  blindly fills every field in the DOM trips this.
+- **Too fast:** the request arrives less than 20 seconds after `startedAt` (captured the
+  moment the page loads). A missing or unparseable `startedAt` is treated the same way, since
+  the frontend always sends it — its absence means something is posting to the endpoint
+  directly rather than through the quiz.
+- **Rate limit:** more than 5 requests from the same IP within an hour. This is in-memory
+  (see [lib/rateLimit.js](lib/rateLimit.js) for why that's the right call, not a shortcut, at
+  this project's expected volume — and how to upgrade it later if that ever changes).
+
+Both the honeypot and the too-fast check return the same generic `400 Invalid submission` as
+a normal validation failure, so a bot gets no signal about which check it tripped. The rate
+limit returns `429`. Every rejection is structured-logged (`honeypot_triggered`,
+`submission_too_fast`, `rate_limit_exceeded`) alongside the IP.
+
+Every field is still validated server-side regardless — including the "why" textarea's
+minimum length — independent of these checks; a request can fail hardening, or fail
+validation, or both.
+
 ## Project structure
 
 ```
 quizConfig.json            All questions, rules, copy, recipients — edit this, not code
 quizConfig.schema.json     JSON Schema quizConfig.json is validated against
+vercel.json                 Framework pin + security headers (see "Deploy")
 scripts/validate-config.mjs
 scripts/generate-sample-pdfs.mjs  Generates one sample PDF per outcome into samples/ (gitignored)
+scripts/generate-qr.mjs           Generates a src-tag URL + QR code into qr-codes/ (gitignored)
 src/
   App.jsx, components/     The multi-step quiz frontend
   outcomeEngine.js         Pure (answers, config) => { outcome, reasons[] } function, unit tested
@@ -145,6 +232,9 @@ src/
   styles/global.css        Base reset, typography, focus states
   assets/fonts/            Self-hosted Public Sans (woff2)
 lib/                        Server-only code (not bundled into the frontend)
+  geocode.js                Free U.S. Census geocoder client
+  distance.js                Pure haversine distance function, unit tested
+  marylandDistanceCheck.js  Applies the 25-mile Maryland rule after the pure outcome engine
   pdf.js                   Builds the per-submission PDF record
   filename.js               YYYY-MM-DD_LastName-FirstName_OUTCOME_ID.pdf naming
   googleAuth.js             Service-account auth for Drive + Sheets
@@ -153,6 +243,8 @@ lib/                        Server-only code (not bundled into the frontend)
   email.js                  Thin Resend API client
   emailTemplates.js         Recruitment / applicant confirmation / admin backup email content
   notify.js                 Sends every email a submission can trigger, each independently
-api/submit.js               The quiz submission endpoint
+  rateLimit.js               In-memory per-IP rate limit, unit tested
+  duplicateCheck.js          Flags a same-email-within-24h Sheet match, unit tested
+api/submit.js, api/submit.test.js   The quiz submission endpoint, and its hardening tests
 .env.example                Every secret env var, with a description
 ```

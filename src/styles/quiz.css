@@ -4,6 +4,18 @@
   padding: var(--space-6) var(--space-4) var(--space-7);
 }
 
+/* honeypot: hidden from sighted users and screen readers alike (not the
+   same as .visually-hidden, which is meant to stay announced) — only a
+   naive bot filling every field in the DOM will ever touch this. */
+.honeypot-field {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* progress */
 
 .progress {

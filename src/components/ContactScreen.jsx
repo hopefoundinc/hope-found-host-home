@@ -17,6 +17,8 @@ function ContactScreen({
   onConsentChange,
   onSubmit,
   onBack,
+  honeypot,
+  onHoneypotChange,
 }) {
   const fieldRefs = useRef({});
 
@@ -74,6 +76,19 @@ function ContactScreen({
             {errors.consent}
           </p>
         ) : null}
+      </div>
+
+      <div className="honeypot-field" aria-hidden="true">
+        <label htmlFor="organization">Leave this field blank</label>
+        <input
+          type="text"
+          id="organization"
+          name="organization"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => onHoneypotChange(e.target.value)}
+        />
       </div>
 
       <div className="step-nav">

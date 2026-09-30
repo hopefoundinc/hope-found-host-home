@@ -1,4 +1,4 @@
-const PRECEDENCE = { DISQUALIFY: 2, HOLD: 1 };
+export const PRECEDENCE = { DISQUALIFY: 2, HOLD: 1 };
 
 /**
  * Pure function: derives the internal outcome from a submission's answers and the

@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeOutcome } from '../src/outcomeEngine.js';
+import { applyMarylandDistanceCheck } from '../lib/marylandDistanceCheck.js';
 import { buildRecordPdf } from '../lib/pdf.js';
 import { buildFileName } from '../lib/filename.js';
 import { generateSubmissionId } from '../lib/submissionId.js';
@@ -47,7 +48,14 @@ const samples = [
   },
   {
     label: 'HOLD',
-    contact: { ...baseContact, fullName: 'Pat Okafor' },
+    contact: {
+      ...baseContact,
+      fullName: 'Pat Okafor',
+      streetAddress: '8600 Colesville Rd',
+      city: 'Silver Spring',
+      state: 'MD',
+      zip: '20901',
+    },
     answers: {
       location: 'Maryland',
       english: 'Yes',
@@ -83,11 +91,45 @@ const samples = [
       why: whyText,
     },
   },
+  {
+    label: 'DISQUALIFY (Maryland, beyond 25 miles)',
+    contact: {
+      ...baseContact,
+      fullName: 'Taylor Morgan',
+      streetAddress: '401 S Atlantic Ave',
+      city: 'Ocean City',
+      state: 'MD',
+      zip: '21842',
+    },
+    answers: {
+      location: 'Maryland',
+      english: 'Yes',
+      age: 'Yes',
+      room: 'Yes',
+      room_ready: 'Now',
+      screening: 'Yes',
+      income: 'Yes',
+      household: 'Yes',
+      transport: 'Yes',
+      experience: 'Yes',
+      adaptability: 'Yes',
+      autonomy_respect: 'Yes',
+      why: whyText,
+    },
+  },
 ];
 
 for (const sample of samples) {
-  const { outcome, reasons } = computeOutcome(sample.answers, config);
+  const base = computeOutcome(sample.answers, config);
   const { id, shortId } = generateSubmissionId();
+  const { outcome, reasons } = await applyMarylandDistanceCheck({
+    answers: sample.answers,
+    contact: sample.contact,
+    config,
+    outcome: base.outcome,
+    reasons: base.reasons,
+    submissionId: id,
+  });
   const submittedAt = new Date().toISOString();
   const source = 'test';
 

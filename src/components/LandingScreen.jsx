@@ -9,7 +9,8 @@ function LandingScreen({ orgName, onStart }) {
       </p>
       <p>
         It takes about 5 minutes. The home you're offering must be located in Washington, DC.
-        After you finish, someone from our team will follow up with you.
+        If it's in Maryland instead, it must be within 25 miles of DC's DDS main office at 250
+        E Street SW. After you finish, someone from our team will follow up with you.
       </p>
       <button type="button" className="btn btn-primary btn-block" onClick={onStart}>
         Start the quiz

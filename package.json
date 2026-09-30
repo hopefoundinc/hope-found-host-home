@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "validate:config": "node scripts/validate-config.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "qr": "node scripts/generate-qr.mjs"
   },
   "dependencies": {
     "google-auth-library": "^11.1.0",
@@ -24,6 +25,7 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "oxlint": "^1.81.0",
+    "qrcode": "^1.5.4",
     "vite": "^8.3.0",
     "vitest": "^5.0.1"
   }

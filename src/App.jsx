@@ -10,6 +10,7 @@ import { useSourceTag } from './useSourceTag';
 
 function App() {
   const source = useSourceTag(quizConfig.sourceParam);
+  const [startedAt] = useState(() => new Date().toISOString());
 
   const steps = useMemo(
     () => [
@@ -28,6 +29,7 @@ function App() {
   const [questionError, setQuestionError] = useState(null);
   const [contactErrors, setContactErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
 
   const step = steps[stepIndex];
   const totalProgressSteps = quizConfig.questions.length + 1; // + contact screen
@@ -106,7 +108,9 @@ function App() {
           contact,
           consent,
           source,
+          startedAt,
           submittedAt: new Date().toISOString(),
+          honeypot,
         }),
       });
     } catch (err) {
@@ -154,6 +158,8 @@ function App() {
           onConsentChange={handleConsentChange}
           onSubmit={handleContactSubmit}
           onBack={handleBack}
+          honeypot={honeypot}
+          onHoneypotChange={setHoneypot}
         />
       )}
 

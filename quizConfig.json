@@ -9,6 +9,15 @@
     "adminBackup": "PLACEHOLDER_ADMIN_EMAIL"
   },
   "followUpWindowHours": 48,
+  "marylandDistanceCheck": {
+    "triggerQuestionId": "location",
+    "triggerValue": "Maryland",
+    "maxMiles": 25,
+    "officeName": "DC's DDS main office",
+    "officeAddress": "250 E Street SW, Washington, DC 20024",
+    "officeLat": 38.883183920976,
+    "officeLng": -77.014896371756
+  },
   "questions": [
     {
       "id": "location",
@@ -115,6 +124,6 @@
     }
   ],
   "contactFields": ["fullName", "phone", "email", "streetAddress", "city", "state", "zip", "bestTimeToCall"],
-  "consentText": "PLACEHOLDER: I agree to be contacted by Hope Found, Inc. by phone, text, or email about the host-home program.",
+  "consentText": "I agree to be contacted by Hope Found, Inc. by phone, text, or email about the host-home program. I understand that if I am approved, I will be referred to as a Host-Parent and will be staff of Hope Found, Inc. Stipend payments I may receive as a Host-Parent are generally intended to qualify as difficulty-of-care payments excludable from federal gross income under Internal Revenue Code Section 131. Hope Found does not provide individual tax advice; please consult a tax professional about how this applies to your situation.",
   "sourceParam": "src"
 }

@@ -33,6 +33,20 @@
       }
     },
     "followUpWindowHours": { "type": "integer", "minimum": 1 },
+    "marylandDistanceCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["triggerQuestionId", "triggerValue", "maxMiles", "officeName", "officeAddress", "officeLat", "officeLng"],
+      "properties": {
+        "triggerQuestionId": { "type": "string", "minLength": 1 },
+        "triggerValue": { "type": "string", "minLength": 1 },
+        "maxMiles": { "type": "number", "exclusiveMinimum": 0 },
+        "officeName": { "type": "string", "minLength": 1 },
+        "officeAddress": { "type": "string", "minLength": 1 },
+        "officeLat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "officeLng": { "type": "number", "minimum": -180, "maximum": 180 }
+      }
+    },
     "questions": {
       "type": "array",
       "minItems": 1,
@@ -43,7 +57,11 @@
       "minItems": 1,
       "items": { "type": "string", "minLength": 1 }
     },
-    "consentText": { "type": "string", "minLength": 1 },
+    "consentText": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Label for the required consent checkbox on the contact screen. Must cover: (1) agreement to be contacted by phone, text, or email about the host-home program; (2) that an approved applicant is referred to as a Host-Parent and is staff of Hope Found, Inc.; (3) that stipend payments are generally intended to qualify as difficulty-of-care payments excludable from federal gross income under IRC Section 131, with a note that Hope Found doesn't give individual tax advice and the applicant should consult their own tax professional. Items 2 and 3 are legal/tax classifications, not just copy — confirm with Hope Found's counsel or accountant that they're accurate for how this program is actually structured before launch (see README 'Still needs Hope Found's confirmation')."
+    },
     "sourceParam": { "type": "string", "minLength": 1 }
   },
   "definitions": {
