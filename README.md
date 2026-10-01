@@ -16,35 +16,31 @@ goes live:**
    in `quizConfig.json` are a first draft based on the build brief, not verified DC DDA
    standards. Have Hope Found's program team review every rule in
    [`quizConfig.json`](./quizConfig.json) against current DC DDA host-home requirements.
-2. **Recruitment team email address(es).** Currently set to `recruitment@hopefoundinc.com`
-   as a placeholder in `quizConfig.json` → `recipients.recruitment`.
-3. **Confirmed brand hex values.** The primary teal (`#006D77`) was read from computed
+2. **Confirmed brand hex values.** The primary teal (`#006D77`) was read from computed
    styles on hopefoundinc.com on 2026-09-21 and should be accurate, but ask Hope Found to
    confirm it (and any secondary colors) against their official brand guide if one exists.
-4. **Hope Found Google account** for the Drive folder, Sheet, and service account (Phase 4).
-   None of these exist yet — see "Who owns each account" below.
-5. **DNS access** for `apply.hopefoundinc.com` and the email sending subdomain (Phase 7).
-6. **Consent and privacy wording.** `quizConfig.json` → `consentText` reads reasonably but
+3. **Set up the Drive folder, Sheet, and Google Cloud service account** under
+   `hopefoundinc@gmail.com` (that account exists; those three things under it don't yet) —
+   see "Set up Google Drive and Google Sheets" below.
+4. **DNS access** for `apply.hopefoundinc.com` and the email sending subdomain — see "Deploy"
+   below. Nobody's confirmed who actually controls Hope Found's DNS yet.
+5. **Consent and privacy wording.** `quizConfig.json` → `consentText` reads reasonably but
    hasn't had legal review — confirm it (and whether a separate privacy policy link is
    needed) before launch.
-7. **Church ad run date**, which sets the real deadline for everything above.
+6. **Church ad run date**, which sets the real deadline for everything above.
 
 ## Who owns each account
 
 Hope Found, Inc. owns this project. Zuleema Isaac (Isaac & Co. Consulting) administers it
-but does not own the underlying accounts. As of this writing, **none of the following exist
-yet** and must be created under Hope Found's own accounts before the corresponding phase can
-go live:
+but does not own the underlying accounts.
 
-| Account | Used for | Needed by |
+| Account | Used for | Status |
 |---|---|---|
-| GitHub org/account | Hosting this repo | Any deploy |
-| Vercel team | Hosting the live site at `apply.hopefoundinc.com` | Phase 7 |
-| Google Cloud project + service account | Writing PDFs to Drive and rows to Sheets | Phase 4 |
-| Google Drive folder (`Qualified/`, `Hold/`, `Did-Not-Qualify/`) | Submission records | Phase 4 |
-| Google Sheet | Submission index | Phase 4 |
-| Resend account + verified subdomain of hopefoundinc.com | Applicant + team email | Phase 5 |
-| DNS access to hopefoundinc.com | `apply.hopefoundinc.com` + email subdomain records | Phase 7 |
+| GitHub org (`hopefoundinc`) | Hosting this repo | **Exists** — repo is pushed |
+| Google account (`hopefoundinc@gmail.com`) | Owns the Drive folder, Sheet, and receives recruitment/admin-backup email | **Exists** — the Drive folder, Sheet, and Google Cloud service account under it still need to be created; see "Set up Google Drive and Google Sheets" below |
+| Vercel team | Hosting the live site at `apply.hopefoundinc.com` | Not yet created under Hope Found |
+| Resend account + verified subdomain of hopefoundinc.com | Sending applicant/team email | Not yet created |
+| DNS access to hopefoundinc.com | `apply.hopefoundinc.com` + email subdomain records | Whoever controls Hope Found's DNS hasn't been looped in yet — see "Deploy" below for the records they'll need to add |
 
 ## Tech stack
 
@@ -73,16 +69,19 @@ requires any of these.
 ## Deploy
 
 The live site is a Vercel project connected to this repo's GitHub, at
-`apply.hopefoundinc.com`. Once Hope Found's GitHub and Vercel accounts exist (see "Who owns
-each account" above — as of this writing, neither does):
+`apply.hopefoundinc.com` — a **subdomain** of hopefoundinc.com, not a separate domain to buy;
+it just needs one DNS record added under the domain Hope Found already owns (see step 6).
 
-1. Push this repo to Hope Found's GitHub org.
-2. In Vercel, **Add New Project** → import that GitHub repo. Vercel auto-detects the Vite
-   framework (also pinned explicitly in [`vercel.json`](./vercel.json)) — there's nothing to
-   configure in the build settings.
+1. ~~Push this repo to Hope Found's GitHub org~~ — done, it's at
+   `github.com/hopefoundinc/hope-found-host-home`.
+2. In Vercel, **Add New Project** → import that GitHub repo (needs a Hope Found Vercel team —
+   see "Who owns each account" above). Vercel auto-detects the Vite framework (also pinned
+   explicitly in [`vercel.json`](./vercel.json)) — there's nothing to configure in the build
+   settings.
 3. Under **Project Settings → Environment Variables**, add every variable from
    [`.env.example`](./.env.example) for Production (and Preview too, if preview deployments
-   submitting real test data is useful).
+   submitting real test data is useful). See "Set up Google Drive and Google Sheets" and "Set
+   up Resend" below for where those values come from.
 4. Deploy. Vercel gives you a `*.vercel.app` URL first — confirm the quiz loads and a full
    test submission (`?src=test`) works end to end before moving to the custom domain.
 5. Under **Project Settings → Domains**, add `apply.hopefoundinc.com`.
@@ -107,6 +106,52 @@ each account" above — as of this writing, neither does):
 `vercel.json` also sets `X-Content-Type-Options`, `X-Frame-Options`, and `Referrer-Policy` on
 every response, since this is a public form collecting names, addresses, and phone numbers.
 Vercel applies HTTPS and HSTS automatically on custom domains, so that's not configured here.
+
+### Set up Resend (for sending email)
+
+1. Go to resend.com and sign up, using a Hope Found email address for the account.
+2. In the Resend dashboard, go to Domains → Add Domain. Enter `hopefoundinc.com` and choose
+   a sending subdomain, for example `mail.hopefoundinc.com`.
+3. Resend shows a list of DNS records to add (SPF, DKIM, and sometimes a tracking record).
+   Add all of them at the same DNS provider as the `apply` record above.
+4. Wait for Resend to mark the domain as Verified — a few minutes to a few hours.
+5. Go to API Keys → Create API Key. Copy it immediately — Resend only shows it once. This is
+   `RESEND_API_KEY`; the verified sending address (e.g. `apply@mail.hopefoundinc.com`) is
+   `RESEND_FROM_EMAIL`.
+
+### Set up Google Drive and Google Sheets (where submissions are stored)
+
+Every submission is saved as a PDF in a Google Drive folder and logged as a row in a Google
+Sheet, both under the `hopefoundinc@gmail.com` Google account — the same account that
+receives the recruitment and admin-backup emails (see "Where records land" below).
+
+**Create the folder and sheet:**
+1. Sign in to drive.google.com as `hopefoundinc@gmail.com`.
+2. Create a folder, e.g. "Host-Home Applications". Inside it, create three subfolders named
+   exactly `Qualified`, `Hold`, and `Did-Not-Qualify` (the app creates these automatically if
+   missing, but it's cleaner to make them ahead of time).
+3. Copy the folder's ID from its URL (`drive.google.com/drive/folders/<this part>`) — this is
+   `GOOGLE_DRIVE_FOLDER_ID`.
+4. Create a Sheet, e.g. "Host-Home Submissions". In row 1 of the first tab, add this exact
+   header row: `ID, Timestamp, Name, Phone, Email, City, State, Outcome, Reasons, Source,
+   Drive link, Follow-up status, Duplicate flag`.
+5. Copy the Sheet's ID from its URL (`.../d/<this part>/edit`) — this is `GOOGLE_SHEET_ID`.
+
+**Create the service account** (lets the site write to Drive and Sheets without a human
+logging in):
+6. Go to console.cloud.google.com, still signed in as `hopefoundinc@gmail.com`, and create a
+   project, e.g. "Hope Found Recruitment".
+7. APIs & Services → Library → enable **Google Drive API** and **Google Sheets API**.
+8. APIs & Services → Credentials → Create Credentials → Service Account. No special roles
+   needed.
+9. Open the service account → Keys tab → Add Key → Create New Key → JSON. This downloads a
+   `.json` file — this whole file's contents, as a single-line string, is
+   `GOOGLE_SERVICE_ACCOUNT_JSON`. Treat it like a password; never send it in plain email.
+10. Copy the service account's email (looks like `name@project-id.iam.gserviceaccount.com`).
+
+**Share both with the service account:**
+11. In Drive, right-click the folder → Share → paste the service account's email → Editor.
+12. Open the Sheet → Share → paste the same service account email → Editor.
 
 ## Editing `quizConfig.json`
 
