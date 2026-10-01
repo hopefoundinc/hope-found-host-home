@@ -4,9 +4,9 @@
     "orgName": "Hope Found, Inc."
   },
   "recipients": {
-    "recruitment": ["recruitment@hopefoundinc.com"],
+    "recruitment": ["hopefoundinc@gmail.com"],
     "cc": ["zuleemamalya@gmail.com"],
-    "adminBackup": "PLACEHOLDER_ADMIN_EMAIL"
+    "adminBackup": "hopefoundinc@gmail.com"
   },
   "followUpWindowHours": 48,
   "marylandDistanceCheck": {
